@@ -12,18 +12,18 @@ https://www.kaggle.com/kostastokis/simpsons-faces
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_1.png" width="200"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_1.png" width="500"/>
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_2.png" width="200"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_2.png" width="500"/>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_3.png" width="200"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_3.png" width="500"/>
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_4.png" width="200"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_4.png" width="500"/>
     </td>
   </tr>
 </table>
