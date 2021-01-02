@@ -159,10 +159,9 @@ for epoch in range(train_epoch):
         i += 1
         if i % batches_per_epoch == 0:
             training_pbar.close()
-            reconstruction_loss /= batches_per_epoch
-            kullback_leibler_loss /= batches_per_epoch
             print('\n[%d/%d] - reconstruction loss: %.9f, Kullback-Leibler loss: %.9f' % (
-                (epoch + 1), train_epoch, reconstruction_loss, kullback_leibler_loss))
+                (epoch + 1), train_epoch, reconstruction_loss / batches_per_epoch,
+                kullback_leibler_loss / batches_per_epoch))
             reconstruction_loss = 0
             kullback_leibler_loss = 0
             with torch.no_grad():
@@ -171,7 +170,7 @@ for epoch in range(train_epoch):
                 result_sampled = torch.cat([x, x_rec]) * 0.5 + 0.5
                 result_sampled = result_sampled.cpu()
                 save_image(result_sampled.view(-1, 3, im_size, im_size),
-                           'results_reconstructed/sample_' + str(epoch) + "_" + str(i) + '.png')
+                           'results_reconstructed/sample_' + str(epoch) + '.png')
                 sample = torch.randn(128, z_size).view(-1, z_size, 1, 1).cuda()
                 x_rec = vae.decode(sample)
                 result_sampled = x_rec * 0.5 + 0.5
@@ -184,8 +183,8 @@ for epoch in range(train_epoch):
 vae.load_state_dict(torch.load("./weights_177.pth"))
 os.makedirs('generated_results', exist_ok=True)
 for i in range(0, 200):
-    sample1 = torch.randn(128, z_size).view(-1, z_size, 1, 1).cuda()
-    x_rec = vae.decode(sample1)
-    resultsample = x_rec * 0.5 + 0.5
-    resultsample = resultsample.cpu()
-    save_image(resultsample.view(-1, 3, im_size, im_size), 'generated_results/sample_' + str(i) + '.png')
+    sample = torch.randn(128, z_size).view(-1, z_size, 1, 1).cuda()
+    x_rec = vae.decode(sample)
+    result_sampled = x_rec * 0.5 + 0.5
+    result_sampled = result_sampled.cpu()
+    save_image(result_sampled.view(-1, 3, im_size, im_size), 'generated_results/sample_' + str(i) + '.png')
