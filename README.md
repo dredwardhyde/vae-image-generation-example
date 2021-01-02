@@ -1,4 +1,4 @@
-# Image generation example using VAE architecture and Simpsons dataset
+# Image Generation Using VAE Architecture And Simpsons Faces Dataset
 
 ### Dataset
 
