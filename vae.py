@@ -11,6 +11,7 @@ from torch import optim
 from torch.nn import functional as F
 from torchvision.utils import save_image
 from colorama import Fore
+import math
 
 
 # ================================================= MODEL ==============================================================
@@ -118,7 +119,7 @@ gradient_clipping_value = 0.1
 im_collection = io.imread_collection('./cropped/*.png')
 data_train = images = process_images(im_collection)
 print("Train set size:", len(data_train))
-batches_per_epoch = (len(data_train) // batch_size) + 1
+batches_per_epoch = (math.ceil(len(data_train) / batch_size))
 print("Batches in 1 epoch: ", batches_per_epoch)
 os.makedirs('results_reconstructed', exist_ok=True)
 os.makedirs('results_generated', exist_ok=True)
