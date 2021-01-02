@@ -21,6 +21,7 @@ class VAE(nn.Module):
 
         self.zsize = zsize
 
+        # Encoder
         self.conv1 = nn.Conv2d(3, 128, 4, 2, 1)
         self.conv1_bn = nn.BatchNorm2d(128)
         self.conv2 = nn.Conv2d(128, 256, 4, 2, 1)
@@ -35,8 +36,8 @@ class VAE(nn.Module):
         self.fc1 = nn.Linear(2048 * 4 * 4, zsize)
         self.fc2 = nn.Linear(2048 * 4 * 4, zsize)
 
+        # Decoder
         self.d1 = nn.Linear(zsize, 2048 * 4 * 4)
-
         self.deconv1 = nn.ConvTranspose2d(2048, 1024, 4, 2, 1)
         self.deconv1_bn = nn.BatchNorm2d(1024)
         self.deconv2 = nn.ConvTranspose2d(1024, 512, 4, 2, 1)
@@ -115,15 +116,17 @@ kl_weight = 1.7
 train_epoch = 200
 lr = 0.0008
 gradient_clipping_value = 0.1
+
 # ============================================= PREPARING DATASET ======================================================
 im_collection = io.imread_collection('./cropped/*.png')
 data_train = images = process_images(im_collection)
-print("Train set size:", len(data_train))
+print("Training dataset size:", len(data_train))
 batches_per_epoch = (math.ceil(len(data_train) / batch_size))
-print("Batches in 1 epoch: ", batches_per_epoch)
+print("Batches per epoch: ", batches_per_epoch)
 os.makedirs('results_reconstructed', exist_ok=True)
 os.makedirs('results_generated', exist_ok=True)
 train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size, shuffle=True)
+
 # ================================================ TRAINING MODEL ======================================================
 vae = VAE(zsize=z_size)
 vae.cuda()
