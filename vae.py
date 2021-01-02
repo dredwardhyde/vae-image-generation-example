@@ -1,18 +1,16 @@
 import os
-import pickle
-import random
+import sys
 import time
-from pathlib import Path
-
+from tqdm import tqdm
 import numpy as np
 import torch
 from PIL import Image
-from dlutils import batch_provider
 from skimage import io
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
 from torchvision.utils import save_image
+from colorama import Fore
 
 
 # ================================================= MODEL ==============================================================
@@ -76,7 +74,7 @@ class VAE(nn.Module):
         x = F.leaky_relu(self.deconv2_bn(self.deconv2(x)), 0.2)
         x = F.leaky_relu(self.deconv3_bn(self.deconv3(x)), 0.2)
         x = F.leaky_relu(self.deconv4_bn(self.deconv4(x)), 0.2)
-        x = F.tanh(self.deconv5(x))
+        x = torch.tanh(self.deconv5(x))
         return x
 
     def forward(self, x):
@@ -101,10 +99,10 @@ def loss_function(recon_x, x, mu, logvar):
 
 
 # ========================================== IMAGE PREPROCESSING =======================================================
-def process_batch(batch):
-    data = [np.array(Image.fromarray(x).resize([im_size, im_size])).transpose((2, 0, 1)) for x in batch]
-    x = torch.from_numpy(np.asarray(data, dtype=np.float32)).cuda() / 127.5 - 1.
-    x = x.view(-1, 3, im_size, im_size)
+def process_images(im_collection):
+    data = [np.array(Image.fromarray(x).resize([im_size, im_size])).transpose((2, 0, 1)) for x in im_collection]
+    x = np.asarray(data, dtype=np.float32) / 127.5 - 1.
+    x = x.reshape(-1, 3, im_size, im_size)
     return x
 
 
@@ -115,26 +113,16 @@ z_size = 512
 kl_weight = 1.7
 train_epoch = 200
 lr = 0.0008
-
+gradient_clipping_value = 0.1
 # ============================================= PREPARING DATASET ======================================================
-dataset = Path("./simpsons.pkl")
-if not dataset.exists():
-    io.use_plugin('pil')
-    im_collection = io.imread_collection('./cropped/*.png')
-    output = open('simpsons.pkl', 'wb')
-    images = [x for x in im_collection]
-    pickle.dump(images, output)
-    output.close()
-
-with open('simpsons.pkl', 'rb') as pkl:
-    data_train = pickle.load(pkl)
-
+im_collection = io.imread_collection('./cropped/*.png')
+data_train = images = process_images(im_collection)
 print("Train set size:", len(data_train))
 batches_per_epoch = (len(data_train) // batch_size) + 1
 print("Batches in 1 epoch: ", batches_per_epoch)
 os.makedirs('results_reconstructed', exist_ok=True)
 os.makedirs('results_generated', exist_ok=True)
-
+train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size, shuffle=True)
 # ================================================ TRAINING MODEL ======================================================
 vae = VAE(zsize=z_size)
 vae.cuda()
@@ -144,35 +132,37 @@ vae_optimizer = optim.Adam(vae.parameters(), lr=lr)
 
 for epoch in range(train_epoch):
     vae.train()
-    random.shuffle(data_train)
-    batches = batch_provider(data_train, batch_size, process_batch, report_progress=True)
     reconstruction_loss = 0
-    kl_loss = 0
+    kullback_leibler_loss = 0
     epoch_start_time = time.time()
     i = 0
-    for x in batches:
+    training_pbar = tqdm(total=len(data_train),
+                         position=0, leave=True,
+                         file=sys.stdout, bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.GREEN, Fore.RESET))
+    for _, x in enumerate(train_loader):
         # ============================================ TRAINING ========================================================
         vae.train()
         vae.zero_grad()
+        x = x.cuda()
         rec, mu, logvar = vae(x)
         loss_re, loss_kl = loss_function(rec, x, mu, logvar)
         (loss_re + loss_kl).backward()
-        torch.nn.utils.clip_grad_norm_(vae.parameters(), 0.1)
+        torch.nn.utils.clip_grad_norm_(vae.parameters(), gradient_clipping_value)
         vae_optimizer.step()
         reconstruction_loss += loss_re.item()
-        kl_loss += loss_kl.item()
-        epoch_end_time = time.time()
-        per_epoch_ptime = epoch_end_time - epoch_start_time
-
+        kullback_leibler_loss += loss_kl.item()
+        epoch_end_time = time.time() - epoch_start_time
+        training_pbar.update(x.shape[0])
         # ============================================ VALIDATION ======================================================
         i += 1
         if i % batches_per_epoch == 0:
+            training_pbar.close()
             reconstruction_loss /= batches_per_epoch
-            kl_loss /= batches_per_epoch
-            print('\n[%d/%d] - ptime: %.2f, rec loss: %.9f, KL loss: %.9f' % (
-                (epoch + 1), train_epoch, per_epoch_ptime, reconstruction_loss, kl_loss))
+            kullback_leibler_loss /= batches_per_epoch
+            print('\n[%d/%d] - epoch time: %.2f, reconstruction loss: %.9f, Kullback-Leibler loss: %.9f' % (
+                (epoch + 1), train_epoch, epoch_end_time, reconstruction_loss, kullback_leibler_loss))
             reconstruction_loss = 0
-            kl_loss = 0
+            kullback_leibler_loss = 0
             with torch.no_grad():
                 vae.eval()
                 x_rec, _, _ = vae(x)
@@ -184,7 +174,8 @@ for epoch in range(train_epoch):
                 x_rec = vae.decode(sample)
                 result_sampled = x_rec * 0.5 + 0.5
                 result_sampled = result_sampled.cpu()
-                save_image(result_sampled.view(-1, 3, im_size, im_size), 'results_generated/sample_' + str(epoch) + '.png')
+                save_image(result_sampled.view(-1, 3, im_size, im_size),
+                           'results_generated/sample_' + str(epoch) + '.png')
     torch.save(vae.state_dict(), "./weights_" + str(epoch) + ".pth")
 
 # ============================================ TESTING =================================================================
