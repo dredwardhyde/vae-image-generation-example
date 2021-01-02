@@ -138,7 +138,6 @@ for epoch in range(train_epoch):
     vae.train()
     reconstruction_loss = 0
     kullback_leibler_loss = 0
-    epoch_start_time = time.time()
     i = 0
     training_pbar = tqdm(total=len(data_train),
                          position=0, leave=True,
@@ -155,7 +154,6 @@ for epoch in range(train_epoch):
         vae_optimizer.step()
         reconstruction_loss += loss_re.item()
         kullback_leibler_loss += loss_kl.item()
-        epoch_end_time = time.time() - epoch_start_time
         training_pbar.update(x.shape[0])
         # ============================================ VALIDATION ======================================================
         i += 1
@@ -163,8 +161,8 @@ for epoch in range(train_epoch):
             training_pbar.close()
             reconstruction_loss /= batches_per_epoch
             kullback_leibler_loss /= batches_per_epoch
-            print('\n[%d/%d] - epoch time: %.2f, reconstruction loss: %.9f, Kullback-Leibler loss: %.9f' % (
-                (epoch + 1), train_epoch, epoch_end_time, reconstruction_loss, kullback_leibler_loss))
+            print('\n[%d/%d] - reconstruction loss: %.9f, Kullback-Leibler loss: %.9f' % (
+                (epoch + 1), train_epoch, reconstruction_loss, kullback_leibler_loss))
             reconstruction_loss = 0
             kullback_leibler_loss = 0
             with torch.no_grad():
