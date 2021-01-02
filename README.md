@@ -5,24 +5,24 @@
 Unfiltered cropped Simpsons faces from [this dataset](https://www.kaggle.com/kostastokis/simpsons-faces)  
 
 ### Generated images
-<img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/results.png" width="1042"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/results/results.png" width="1042"/>  
 
 ### Reconstructed images
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_1.png" width="500"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/results/reconstruction_1.png" width="500"/>
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_2.png" width="500"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/results/reconstruction_2.png" width="500"/>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_3.png" width="500"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/results/reconstruction_3.png" width="500"/>
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/reconstruction_4.png" width="500"/>
+      <img src="https://raw.githubusercontent.com/dredwardhyde/vae-image-generation-example/main/results/reconstruction_4.png" width="500"/>
     </td>
   </tr>
 </table>
