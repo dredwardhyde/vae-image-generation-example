@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 from tqdm import tqdm
 import numpy as np
 import torch
@@ -101,8 +100,8 @@ def loss_function(recon_x, x, mu, logvar):
 
 
 # ========================================== IMAGE PREPROCESSING =======================================================
-def process_images(im_collection):
-    data = [np.array(Image.fromarray(x).resize([im_size, im_size])).transpose((2, 0, 1)) for x in im_collection]
+def process_images(image_collection):
+    data = [np.array(Image.fromarray(x).resize([im_size, im_size])).transpose((2, 0, 1)) for x in image_collection]
     x = np.asarray(data, dtype=np.float32) / 127.5 - 1.
     x = x.reshape(-1, 3, im_size, im_size)
     return x
@@ -141,7 +140,7 @@ for epoch in range(train_epoch):
     i = 0
     training_pbar = tqdm(total=len(data_train),
                          position=0, leave=True,
-                         file=sys.stdout, bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.BLUE, Fore.RESET))
+                         file=sys.stdout, bar_format="{l_bar}%s{bar:70}%s{r_bar}" % (Fore.BLUE, Fore.RESET))
     for _, x in enumerate(train_loader):
         # ============================================ TRAINING ========================================================
         vae.train()
