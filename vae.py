@@ -141,7 +141,7 @@ for epoch in range(train_epoch):
     i = 0
     training_pbar = tqdm(total=len(data_train),
                          position=0, leave=True,
-                         file=sys.stdout, bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.GREEN, Fore.RESET))
+                         file=sys.stdout, bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.BLUE, Fore.RESET))
     for _, x in enumerate(train_loader):
         # ============================================ TRAINING ========================================================
         vae.train()
@@ -159,7 +159,7 @@ for epoch in range(train_epoch):
         i += 1
         if i % batches_per_epoch == 0:
             training_pbar.close()
-            print('\n[%d/%d] - reconstruction loss: %.9f, Kullback-Leibler loss: %.9f' % (
+            print('\nEpoch [%d/%d] - reconstruction loss: %.9f, Kullback-Leibler loss: %.9f' % (
                 (epoch + 1), train_epoch, reconstruction_loss / batches_per_epoch,
                 kullback_leibler_loss / batches_per_epoch))
             reconstruction_loss = 0
